@@ -29,11 +29,8 @@ namespace TechOneAPI.Controllers
         [HttpGet("convert-to-words")]
         public IActionResult ConvertToWords([FromQuery] decimal? value)
         {
-            return HandleRequest(_logger, "Error converting number to words", () =>
-            {
-                var result = _converter.ConvertValueToString(value);
-                return new { Value = value, Words = result };
-            });
+            return HandleRequest(_logger, "Error converting number to words",
+                () => _converter.ConvertValueToString(value));
         }
     }
 }
