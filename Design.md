@@ -1,3 +1,11 @@
+
+
+\## Design.md
+
+
+
+```markdown
+
 \# Design Document
 
 
@@ -6,9 +14,9 @@
 
 
 
-\- Convert a dollar amount to words, via a web page.
+\- Convert a dollar amount to words, using a web page.
 
-\- 123.45 → ONE HUNDRED AND TWENTY-THREE DOLLARS AND FORTY-FIVE CENTS
+\- Example: 123.45 returns ONE HUNDRED AND TWENTY-THREE DOLLARS AND FORTY-FIVE CENTS.
 
 
 
@@ -16,17 +24,17 @@
 
 
 
-\- TechOneCore — conversion logic. No web dependencies.
+\- TechOneCore: the conversion logic. No web dependencies.
 
-\- TechOneAPI — endpoint plus the web page in wwwroot.
+\- TechOneAPI: the endpoint, and the web page in wwwroot.
 
-\- TechOneTest — NUnit tests.
+\- TechOneTest: NUnit tests.
 
-\- Logic stays in the service. Controller just passes the request through.
+\- Every logic should be in the service layer, so the controller only passes the request through and returns the response.
 
-\- TechOneCore registers itself via AddSharedServices(), so Program.cs never names a concrete class.
+\- TechOneCore registers itself with AddSharedServices(), so Program.cs does not need to know the concrete class.
 
-\- Rejected — one project. Logic would mix with controller code, and tests would need a web host.
+\- I did not put everything in one project, because then the logic would mix with the controller code, and the tests would need a web host to run.
 
 
 
@@ -34,15 +42,19 @@
 
 
 
-\- Split the dollars into groups of three digits from the right.
+\- Split the dollars into groups of three digits, starting from the right.
 
-\- Convert each group, add a scale word by position (THOUSAND, MILLION, …).
+\- Convert each group, then add the scale word based on the position of the group (THOUSAND, MILLION, and so on).
 
-\- Three cases inside a group, because English names them differently: 0-9, 10-19 — irregular (ELEVEN, TWELVE), 20-99 — tens word plus optional hyphenated unit
+\- Inside a group there are three cases, because English names them differently:
 
-\- English repeats every three digits, so the group code is written once and reused. Adding a scale is one dictionary entry.
+&#x20; 0 to 9, then 10 to 19 which are irregular (ELEVEN, TWELVE), then 20 to 99 which use the tens word with an optional hyphenated unit.
 
-\- Rejected — recursion. Works, but the position-to-scale link is hidden in the call stack instead of visible as an index.
+\- English repeats the same pattern every three digits, so the group code is written once and reused. 
+
+&#x20; To support a bigger number, I only need to add one more entry to the scales dictionary.
+
+\- I did not use recursion. It also works, but then the link between the position and the scale word is hidden in the call stack, instead of being visible as an index.
 
 
 
@@ -50,11 +62,11 @@
 
 
 
-\- Dictionary of int to string, keyed by the number the word spells. 20 maps to TWENTY.
+\- I used Dictionary of int to string, and the key is the number that the word spells. So 20 maps to TWENTY.
 
-\- Teens\[13] reads as the word for thirteen. No counting positions when editing.
+\- teens\[13] reads as the word for thirteen, so there is no need to count positions when editing the table.
 
-\- Rejected — arrays. Developer has to remember what each index means. Easy to get wrong.
+\- I did not use arrays, because then the developer has to remember what each index means, and it is easy to get wrong.
 
 
 
@@ -62,25 +74,29 @@
 
 
 
-\- Requirement says numerical twice, so string and char are out of scope.
+\- The requirement says numerical twice, so string and char are out of scope.
 
-\- Requirement does not ban nullable numeric, so it's allowed by default.
+\- The requirement does not say that nullable is not allowed, so it is allowed by default.
 
-\- Decimal because it is exact for money. Double gives 28 cents for 1.29.
+\- I used decimal, because it is exact for money. Double is not exact, and it gives 28 cents for 1.29.
 
-\- Nullable because plain decimal turns bad input into 0, so abc would return ZERO DOLLARS.
-
-
-
-\## Cases not in the requirement, assume allowed by default
+\- I used nullable, because a plain decimal turns bad input into 0, so abc would return ZERO DOLLARS instead of an error.
 
 
 
-\- Zero — allowed, returns ZERO DOLLARS.
+\## Cases not in the requirement
 
-\- Null — throws ArgumentNullException. A missing parameter should error, not default.
 
-\- Negative — allowed, prefixed MINUS.
+
+The requirement does not mention about these cases, so I allowed them by default:
+
+
+
+\- Zero: allowed, returns ZERO DOLLARS.
+
+\- Null: throws ArgumentNullException. A missing parameter should return an error, not a default value.
+
+\- Negative: allowed, with MINUS as the prefix.
 
 
 
@@ -88,13 +104,13 @@
 
 
 
-\- Browser: regex, optional minus, up to 19 digits, max 2 decimals. Fast, clear message.
+\- Browser: a regex for optional minus, up to 19 digits, and maximum 2 decimals. This is fast and gives a clear message.
 
-\- Model binding: string to decimal. Bad input returns 400 automatically.
+\- Model binding: string to decimal. If it fails, the response is 400 automatically.
 
-\- Service: null and range guards.
+\- Service: the null check and the range check.
 
-\- Browser checks are for the message only. Endpoint can be called directly, so the server is the real check. Never trust the inputs
+\- The browser check is only for the message. The endpoint can also be called directly, so the server is the real check. Never trust the input from the client.
 
 
 
@@ -102,19 +118,17 @@
 
 
 
-\- Service throws typed exceptions.
+\- The service throws typed exceptions.
 
-\- HandleRequest in BaseApiController maps ArgumentException to 400, everything else to 500 with a log.
+\- HandleRequest in BaseApiController maps ArgumentException to 400, and everything else to 500 with a log.
 
-\- Every response uses ResponseDTO:
+\- The response uses ResponseDTO:
 
 
 
 ```json
 
 { "isSuccess": true, "result": "ONE HUNDRED AND TWENTY-THREE DOLLARS AND FORTY-FIVE CENTS", "errMsg": null }
-
-```
 
 
 

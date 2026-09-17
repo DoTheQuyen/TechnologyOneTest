@@ -105,7 +105,6 @@ namespace TechOneCore.Services.Service
 
         /// <summary>
         /// this method converts a long integer to its corresponding English words representation.
-        /// code review standards: reusable code, small and focused on a single task, and handles exceptions gracefully.
         /// </summary>
         /// <param name="number"></param>
         /// <returns></returns>
@@ -143,7 +142,6 @@ namespace TechOneCore.Services.Service
 
         /// <summary>
         /// this method converts a three-digit group to its corresponding English words representation.
-        /// code review standards: reusable code, small and focused on a single task, and handles exceptions gracefully.
         /// </summary>
         /// <param name="number"></param>
         /// <returns></returns>

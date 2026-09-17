@@ -6,9 +6,11 @@
 
 
 
-\- In: conversion logic, validation, status codes, the web page.
+\- In scope: the conversion logic, the validation, the status codes, and the web page.
 
-\- Out: load testing, cross-browser, auth (endpoint is anonymous by design).
+\- Out of scope: load testing, cross browser testing, and authentication, because the
+
+&#x20; endpoint is anonymous by design.
 
 
 

@@ -128,7 +128,7 @@ dotnet test
 
 
 
-\- DESIGN.md
+\- Design.md
 
-\- TEST-PLAN.md
+\- TestPlan.md
 
