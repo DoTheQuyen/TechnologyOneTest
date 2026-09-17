@@ -1,0 +1,92 @@
+<!-- Build simple html with JS fetch to ad input and display output on screen -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Technology One Test</title>
+</head>
+<body>
+    <h1>Convert Number to Words</h1>
+    <p>Enter a dollar amount, for example 123.45</p>
+
+    <input id="amount" type="text" inputmode="decimal" autocomplete="off"
+           maxlength="32" placeholder="123.45" aria-label="Amount" />
+    <button id="convert" type="button">Convert</button>
+
+    <p id="error" role="alert"></p>
+
+    <fieldset id="output">
+        <legend>Output in Words</legend>
+        <output id="result" aria-live="polite"></output>
+    </fieldset>
+
+</body>
+</html>
+
+<script>
+    // Regex pattern to validate a number with at most 2 decimal places
+    const PATTERN = /^-?\d{1,19}(\.\d{1,2})?$/;
+
+    function convert() {
+        const raw = document.getElementById('amount').value.trim();
+
+        document.getElementById('error').textContent = '';
+        document.getElementById('result').textContent = '';
+
+        // Validate input against the regex pattern, if input is invalid, display error message and return
+        if (!PATTERN.test(raw)) {
+            document.getElementById('error').textContent = 'Enter a number with at most 2 decimal places.';
+            return;
+        }
+
+        fetch(`/api/numbertowords/convert-to-words?value=${encodeURIComponent(raw)}`)
+            .then(res => res.json())
+            .then(data => {
+                if (data.isSuccess) {
+                    document.getElementById('result').textContent = data.result.words;
+                } else {
+                    document.getElementById('error').textContent = data.errMsg ?? 'Invalid input.';
+                }
+            })
+            .catch(() => {
+                document.getElementById('error').textContent = 'Could not reach the server.';
+            });
+    }
+
+    document.getElementById('convert').addEventListener('click', convert);
+    document.getElementById('amount').addEventListener('keydown', e => {
+        if (e.key === 'Enter') convert();
+    });
+</script>
+
+<style>
+    body {
+        max-width: 34rem;
+        margin: 2rem auto;
+        padding: 0 1rem;
+        font-family: system-ui, sans-serif;
+    }
+
+    input, button {
+        padding: .5rem;
+        font-size: 1rem;
+    }
+
+    #amount {
+        width: 27.5rem;
+    }
+
+    #error {
+        color: #b00020;
+        min-height: 1.35rem;
+    }
+
+    #output {
+        min-height: 3rem;
+    }
+
+    #result {
+        font-weight: 600;
+    }
+</style>
