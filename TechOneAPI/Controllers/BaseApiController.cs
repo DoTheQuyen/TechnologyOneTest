@@ -14,7 +14,7 @@ namespace TechOneAPI.Controllers
     [Route("api/[controller]")]
     public abstract class BaseApiController : ControllerBase
     {
-        protected IActionResult HandleRequest<T>(ILogger logger, string errorContext, Func<T> action)
+        protected IActionResult RequestResponse<T>(ILogger logger, string errorContext, Func<T> action)
         {
             try
             {
